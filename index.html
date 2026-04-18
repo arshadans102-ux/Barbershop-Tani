@@ -2660,6 +2660,7 @@ footer {
     <!-- LEFT: Service + Barber -->
     <div class="bk-col-left">
       <span class="bk-col-label">SERVICE</span>
+      <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:0.75rem;letter-spacing:0.5px;">Please select one or more services to book.</p>
       <ul class="bk-service-list" id="bkSvcList">
         <li class="bk-service-item" data-svc="Regular Cut"        data-price="$30"><span class="bk-svc-name">Regular Cut</span><span class="bk-svc-price">$30</span></li>
         <li class="bk-service-item" data-svc="Children Cut"       data-price="$20"><span class="bk-svc-name">Children Cut</span><span class="bk-svc-price">$20</span></li>
@@ -2816,7 +2817,11 @@ footer {
 </div>
 
 <script>
-var bk = { svc: null, price: null, barber: 'No Preference', date: null, time: null };
+var bk = { svcs: [], barber: 'No Preference', date: null, time: null };
+function bkSelectedSvcs() { return bk.svcs; }
+function bkTotalPrice() {
+  return bk.svcs.reduce((sum, s) => sum + parseInt(s.price.replace('$','')), 0);
+}
 
 // ─── Mobile menu ───
 const hamburger = document.getElementById('hamburger');
@@ -2839,13 +2844,14 @@ document.querySelectorAll('.mobile-link').forEach(link => {
 // ── BOOKING v3 ──
 
 
-// Service rows
+// Service rows (legacy — multi-select)
 document.querySelectorAll('.bk-svc-row').forEach(row => {
   row.addEventListener('click', () => {
-    document.querySelectorAll('.bk-svc-row').forEach(r => r.classList.remove('active'));
-    row.classList.add('active');
-    bk.svc = row.dataset.svc;
-    bk.price = row.dataset.price;
+    const svc = row.dataset.svc;
+    const price = row.dataset.price;
+    const idx = bk.svcs.findIndex(s => s.svc === svc);
+    if (idx > -1) { bk.svcs.splice(idx, 1); row.classList.remove('active'); }
+    else { bk.svcs.push({ svc, price }); row.classList.add('active'); }
   });
 });
 
@@ -2930,13 +2936,15 @@ renderTimes();
 
 // ── Submit ──
 function bkSubmit() {
-  if (!bk.svc) return alert("Please select a service.");
+  if (!bk.svcs.length) return alert("Please select at least one service.");
   if (!bk.date) return alert("Please select a date.");
   if (!bk.time) return alert("Please select a time.");
   const name = document.getElementById("bkName").value.trim();
   const phone = document.getElementById("bkPhone").value.trim();
   if (!name || !phone) return alert("Please provide your name and phone number.");
-  alert("Appointment Booked!\n\nService: " + bk.svc + "\nBarber: " + bk.barber + "\nDate: " + bk.date.toLocaleDateString() + "\nTime: " + bk.time);
+  const svcList = bk.svcs.map(s => s.svc + ' (' + s.price + ')').join(', ');
+  const total = '$' + bkTotalPrice();
+  alert("Appointment Booked!\n\nServices: " + svcList + "\nTotal: " + total + "\nBarber: " + bk.barber + "\nDate: " + bk.date.toLocaleDateString() + "\nTime: " + bk.time);
 }
 
 document.getElementById('modal').addEventListener('click', function(e) {
@@ -2988,13 +2996,19 @@ document.querySelectorAll('.bk-btn, .hero-cta').forEach(el => {
 
 function checkBkValid() {}
 
-// Service list
+// Service list — multi-select
 document.querySelectorAll('.bk-service-item').forEach(item => {
   item.addEventListener('click', () => {
-    document.querySelectorAll('.bk-service-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    bk.svc   = item.dataset.svc;
-    bk.price = item.dataset.price;
+    const svc = item.dataset.svc;
+    const price = item.dataset.price;
+    const idx = bk.svcs.findIndex(s => s.svc === svc);
+    if (idx > -1) {
+      bk.svcs.splice(idx, 1);
+      item.classList.remove('active');
+    } else {
+      bk.svcs.push({ svc, price });
+      item.classList.add('active');
+    }
     checkBkValid();
   });
 });
