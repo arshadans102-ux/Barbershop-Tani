@@ -819,10 +819,9 @@ section { padding: 4rem 1.5rem; }
 /* ─── REELS ─── */
 .reels-scroll {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   overflow-x: auto;
-  padding: 16px calc(50% - 110px) 12px;
-  scroll-snap-type: x mandatory;
+  padding: 8px 1.5rem 20px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -831,24 +830,19 @@ section { padding: 4rem 1.5rem; }
 .reel-card {
   flex: 0 0 200px;
   aspect-ratio: 9/16;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   position: relative;
-  background: #0e0c0c;
-  scroll-snap-align: center;
+  background: #1a1715;
   cursor: pointer;
-  border: 1.5px solid rgba(201,168,76,0.08);
-  transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease), border-color 0.45s var(--ease), filter 0.45s var(--ease);
-  transform: scale(0.88);
-  filter: brightness(0.55);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-  will-change: transform, filter;
+  border: 1.5px solid rgba(201,168,76,0.12);
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  flex-shrink: 0;
 }
-.reel-card.featured {
-  transform: scale(1);
-  filter: brightness(1);
-  border-color: rgba(201,168,76,0.5);
-  box-shadow: 0 0 0 2px rgba(201,168,76,0.18), 0 20px 50px rgba(0,0,0,0.7), 0 0 40px rgba(201,168,76,0.1);
+.reel-card.playing {
+  border-color: rgba(201,168,76,0.55);
+  box-shadow: 0 0 0 2px rgba(201,168,76,0.2), 0 12px 32px rgba(0,0,0,0.6);
 }
 .reel-card video {
   width: 100%; height: 100%;
@@ -856,121 +850,48 @@ section { padding: 4rem 1.5rem; }
   display: block;
 }
 
-/* Bottom gradient + reel number + mute */
-.reel-bottom {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 36px 10px 10px;
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  z-index: 2;
-  pointer-events: none;
-}
-.reel-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 3px;
-  color: rgba(201,168,76,0.65);
-}
-.reel-mute-btn {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: rgba(12,10,10,0.8);
-  border: 1px solid rgba(201,168,76,0.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.65rem;
-  cursor: pointer;
-  pointer-events: all;
-  opacity: 0;
-  transition: opacity 0.3s, background 0.3s;
-  backdrop-filter: blur(6px);
-  flex-shrink: 0;
-}
-.reel-card.featured .reel-mute-btn { opacity: 1; }
-.reel-mute-btn:hover { background: rgba(201,168,76,0.2); }
-
-/* Video progress bar */
-.reel-progress {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 2.5px;
-  background: rgba(255,255,255,0.1);
-  z-index: 3;
-}
-.reel-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light));
-  border-radius: 2px;
-  transition: width 0.25s linear;
-}
-
-/* Play/pause overlay */
 .reel-overlay {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(8,6,6,0.3);
-  transition: opacity 0.35s var(--ease);
+  background: rgba(10,8,8,0.45);
+  transition: opacity 0.4s var(--ease);
   pointer-events: none;
-  z-index: 2;
 }
 .reel-card.playing .reel-overlay { opacity: 0; }
+
 .reel-play-icon {
-  width: 58px; height: 58px;
+  width: 52px; height: 52px;
   border-radius: 50%;
-  background: rgba(201,168,76,0.1);
-  border: 2px solid rgba(201,168,76,0.65);
-  backdrop-filter: blur(10px);
+  background: rgba(201,168,76,0.15);
+  border: 2px solid rgba(201,168,76,0.6);
+  backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: var(--gold);
-  padding-left: 5px;
-  animation: reel-pulse 2.2s ease-in-out infinite;
+  padding-left: 4px;
+  transition: transform 0.3s var(--ease);
 }
-@keyframes reel-pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); transform: scale(1); }
-  50%      { box-shadow: 0 0 0 14px rgba(201,168,76,0.1); transform: scale(1.05); }
-}
-.reel-card.playing .reel-play-icon { animation: none; }
+.reel-card:hover .reel-play-icon { transform: scale(1.1); }
 
-/* Tap flash */
-.reel-tap-flash {
-  position: absolute; inset: 0;
-  background: rgba(201,168,76,0.1);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 4;
-  transition: opacity 0.12s;
-}
-.reel-card.tapped .reel-tap-flash { opacity: 1; }
-
-/* Counter pill dots */
-.reels-counter {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  padding: 10px 0 4px;
-}
-.reels-counter-dot {
-  height: 4px;
-  width: 4px;
-  border-radius: 2px;
-  background: rgba(201,168,76,0.2);
-  transition: all 0.4s var(--ease);
+.reel-mute-btn {
+  position: absolute; bottom: 12px; right: 12px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(18,16,16,0.75);
+  border: 1px solid rgba(201,168,76,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s, background 0.3s;
+  z-index: 2;
+  backdrop-filter: blur(4px);
 }
-.reels-counter-dot.active {
-  background: var(--gold);
-  width: 20px;
-}
+.reel-card.playing .reel-mute-btn { opacity: 1; }
+.reel-mute-btn:hover { background: rgba(201,168,76,0.2); }
 
 @media (max-width: 600px) {
-  .reels-scroll {
-    padding: 16px calc(50% - 90px) 12px;
-    gap: 12px;
-  }
-  .reel-card { flex: 0 0 170px; border-radius: 16px; }
+  .reel-card { flex: 0 0 160px; border-radius: 12px; }
 }
 
 /* ─── PRICELIST ─── */
@@ -2914,66 +2835,47 @@ footer {
     <div class="gold-line"></div>
     <p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.5rem;">Swipe to watch</p>
   </div>
-  <div class="reels-wrap">
-    <div class="reels-scroll reveal" id="reelsScroll">
-      <div class="reel-card" data-idx="0">
-        <video src="Reel1.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">01</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="1">
-        <video src="Reel2.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">02</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="2">
-        <video src="Reel3.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">03</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="3">
-        <video src="Reel4.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">04</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="4">
-        <video src="Reel5.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">05</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="5">
-        <video src="Reel6.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">06</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="6">
-        <video src="Reel7.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">07</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
-      <div class="reel-card" data-idx="7">
-        <video src="Reel8.MP4" muted loop playsinline preload="none"></video>
-        <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
-        <div class="reel-bottom"><span class="reel-num">08</span><button class="reel-mute-btn">&#128264;</button></div>
-        <div class="reel-progress"><div class="reel-progress-bar"></div></div>
-        <div class="reel-tap-flash"></div>
-      </div>
+  <div class="reels-scroll reveal" id="reelsScroll">
+    <div class="reel-card">
+      <video src="Reel1.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
     </div>
-    <div class="reels-counter" id="reelsCounter"></div>
+    <div class="reel-card">
+      <video src="Reel2.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
+    <div class="reel-card">
+      <video src="Reel3.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
+    <div class="reel-card">
+      <video src="Reel4.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
+    <div class="reel-card">
+      <video src="Reel5.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
+    <div class="reel-card">
+      <video src="Reel6.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
+    <div class="reel-card">
+      <video src="Reel7.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
+    <div class="reel-card">
+      <video src="Reel8.MP4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay"><div class="reel-play-icon">&#9654;</div></div>
+      <button class="reel-mute-btn">&#128264;</button>
+    </div>
   </div>
 </section>
 
@@ -3412,75 +3314,51 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
 
 // ─── REELS ───
 (function(){
-  const scroll  = document.getElementById('reelsScroll');
-  const counter = document.getElementById('reelsCounter');
-  const cards   = Array.from(document.querySelectorAll('.reel-card'));
-  if (!cards.length || !scroll) return;
+  const scroll = document.getElementById('reelsScroll');
+  if (!scroll) return;
 
-  // Build counter dots
-  cards.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'reels-counter-dot' + (i === 0 ? ' active' : '');
-    d.addEventListener('click', () => scrollToCard(i));
-    counter.appendChild(d);
+  // Clone all original cards and append for seamless infinite loop
+  const origCards = Array.from(scroll.querySelectorAll('.reel-card'));
+  origCards.forEach(card => {
+    const clone = card.cloneNode(true);
+    clone.setAttribute('data-clone', '1');
+    scroll.appendChild(clone);
   });
 
-  function scrollToCard(idx) {
-    const card = cards[idx];
-    const scrollLeft = card.offsetLeft - scroll.offsetWidth / 2 + card.offsetWidth / 2;
-    scroll.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-  }
+  const allCards = () => Array.from(scroll.querySelectorAll('.reel-card'));
 
-  function setFeatured(card) {
-    cards.forEach((c, i) => {
-      const isIt = c === card;
-      c.classList.toggle('featured', isIt);
-      const vid = c.querySelector('video');
-      if (!vid) return;
-      if (isIt) {
-        vid.play().catch(() => {});
-        c.classList.add('playing');
-      } else {
-        vid.pause();
-        c.classList.remove('playing');
-      }
-      // update counter
-      if (counter.children[i]) counter.children[i].classList.toggle('active', isIt);
-    });
-  }
-
-  // Detect centered card on scroll
-  let scrollTimer;
+  // When scroll reaches the cloned section, silently jump back to start
   scroll.addEventListener('scroll', () => {
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      const center = scroll.scrollLeft + scroll.offsetWidth / 2;
-      let closest = cards[0], minDist = Infinity;
-      cards.forEach(c => {
-        const cardCenter = c.offsetLeft + c.offsetWidth / 2;
-        const dist = Math.abs(center - cardCenter);
-        if (dist < minDist) { minDist = dist; closest = c; }
-      });
-      setFeatured(closest);
-    }, 80);
+    const totalOrigWidth = origCards.reduce((w, c) => w + c.offsetWidth + 12, 0);
+    if (scroll.scrollLeft >= totalOrigWidth) {
+      scroll.scrollLeft = scroll.scrollLeft - totalOrigWidth;
+    }
   }, { passive: true });
 
-  // Progress bar updater
-  cards.forEach(card => {
-    const vid = card.querySelector('video');
-    const bar = card.querySelector('.reel-progress-bar');
-    if (!vid || !bar) return;
-
-    vid.addEventListener('timeupdate', () => {
-      if (vid.duration) bar.style.width = (vid.currentTime / vid.duration * 100) + '%';
+  // IntersectionObserver — autoplay visible, pause hidden
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const card = entry.target;
+      const vid  = card.querySelector('video');
+      if (!vid) return;
+      if (entry.intersectionRatio >= 0.6) {
+        vid.play().catch(() => {});
+        card.classList.add('playing');
+      } else {
+        vid.pause();
+        card.classList.remove('playing');
+      }
     });
+  }, { threshold: [0, 0.6] });
+
+  allCards().forEach(card => {
+    obs.observe(card);
 
     // Tap = play/pause
     card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('reel-mute-btn') || e.target.closest('.reel-mute-btn')) return;
-      // tap flash
-      card.classList.add('tapped');
-      setTimeout(() => card.classList.remove('tapped'), 200);
+      if (e.target.closest('.reel-mute-btn')) return;
+      const vid = card.querySelector('video');
+      if (!vid) return;
       if (vid.paused) { vid.play().catch(() => {}); card.classList.add('playing'); }
       else            { vid.pause(); card.classList.remove('playing'); }
     });
@@ -3490,17 +3368,13 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
     if (muteBtn) {
       muteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        const vid = card.querySelector('video');
+        if (!vid) return;
         vid.muted = !vid.muted;
         muteBtn.innerHTML = vid.muted ? '&#128264;' : '&#128266;';
       });
     }
   });
-
-  // Init — feature first card after short delay
-  setTimeout(() => {
-    scrollToCard(0);
-    setFeatured(cards[0]);
-  }, 300);
 })();
 
 // ─── THE WORK SLIDESHOW ───
