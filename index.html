@@ -809,6 +809,82 @@ section { padding: 4rem 1.5rem; }
   .work-tile--tall { grid-row: span 1; }
 }
 
+/* ─── REELS ─── */
+.reels-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 8px 1.5rem 20px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.reels-scroll::-webkit-scrollbar { display: none; }
+
+.reel-card {
+  flex: 0 0 200px;
+  aspect-ratio: 9/16;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  background: #1a1715;
+  scroll-snap-align: start;
+  cursor: pointer;
+  border: 1.5px solid rgba(201,168,76,0.12);
+  transition: border-color 0.3s var(--ease), transform 0.3s var(--ease);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.reel-card.playing {
+  border-color: rgba(201,168,76,0.55);
+  box-shadow: 0 0 0 2px rgba(201,168,76,0.2), 0 12px 32px rgba(0,0,0,0.6);
+}
+.reel-card video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.reel-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10,8,8,0.45);
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+}
+.reel-card.playing .reel-overlay { opacity: 0; }
+.reel-play-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.15);
+  border: 2px solid rgba(201,168,76,0.6);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  color: var(--gold);
+  padding-left: 4px;
+  transition: transform 0.3s var(--ease);
+}
+.reel-card:hover .reel-play-icon { transform: scale(1.1); }
+.reel-mute-btn {
+  position: absolute; bottom: 12px; right: 12px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(18,16,16,0.75);
+  border: 1px solid rgba(201,168,76,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s, background 0.3s;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
+.reel-card.playing .reel-mute-btn { opacity: 1; }
+.reel-mute-btn:hover { background: rgba(201,168,76,0.2); }
+
+@media (max-width: 600px) {
+  .reel-card { flex: 0 0 160px; border-radius: 12px; }
+}
+
 /* ─── PRICELIST ─── */
 .pricelist {
   max-width: 900px;
@@ -2569,6 +2645,7 @@ footer {
     <li><a href="#home">HOME</a></li>
     <li><a href="#services">SERVICES</a></li>
     <li><a href="#work">WORK</a></li>
+    <li><a href="#reels">REELS</a></li>
     <li><a href="#barbers">BARBERS</a></li>
     <li><a href="products.html">SHOP</a></li>
     <li><a href="#booking">BOOK NOW</a></li>
@@ -2584,6 +2661,7 @@ footer {
   <a href="#home" class="mobile-link">HOME</a>
   <a href="#services" class="mobile-link">SERVICES</a>
   <a href="#work" class="mobile-link">WORK</a>
+  <a href="#reels" class="mobile-link">REELS</a>
   <a href="#barbers" class="mobile-link">BARBERS</a>
   <a href="products.html" class="mobile-link">SHOP</a>
   <a href="#booking" class="mobile-link">BOOK NOW</a>
@@ -2779,6 +2857,59 @@ footer {
   <div class="work-lightbox" id="workLightbox">
     <button class="work-lb-close" id="workLbClose" aria-label="Close">&#10005;</button>
     <img class="work-lb-img" id="workLbImg" src="" alt="Enlarged view">
+  </div>
+</section>
+
+<!-- Reels -->
+<section class="section-card" id="reels">
+  <div class="section-header reveal">
+    <h2>Behind the <em>Chair</em></h2>
+    <div class="gold-line"></div>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.5rem;">Swipe to watch</p>
+  </div>
+  <div class="reels-scroll reveal" id="reelsScroll">
+    <div class="reel-card" data-src="reel_1.mp4">
+      <video src="reel_1.mp4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay">
+        <div class="reel-play-icon" aria-hidden="true">&#9654;</div>
+      </div>
+      <div class="reel-mute-btn" title="Tap to unmute">&#128264;</div>
+    </div>
+    <div class="reel-card" data-src="reel_2.mp4">
+      <video src="reel_2.mp4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay">
+        <div class="reel-play-icon" aria-hidden="true">&#9654;</div>
+      </div>
+      <div class="reel-mute-btn" title="Tap to unmute">&#128264;</div>
+    </div>
+    <div class="reel-card" data-src="reel_3.mp4">
+      <video src="reel_3.mp4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay">
+        <div class="reel-play-icon" aria-hidden="true">&#9654;</div>
+      </div>
+      <div class="reel-mute-btn" title="Tap to unmute">&#128264;</div>
+    </div>
+    <div class="reel-card" data-src="reel_4.mp4">
+      <video src="reel_4.mp4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay">
+        <div class="reel-play-icon" aria-hidden="true">&#9654;</div>
+      </div>
+      <div class="reel-mute-btn" title="Tap to unmute">&#128264;</div>
+    </div>
+    <div class="reel-card" data-src="reel_5.mp4">
+      <video src="reel_5.mp4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay">
+        <div class="reel-play-icon" aria-hidden="true">&#9654;</div>
+      </div>
+      <div class="reel-mute-btn" title="Tap to unmute">&#128264;</div>
+    </div>
+    <div class="reel-card" data-src="reel_6.mp4">
+      <video src="reel_6.mp4" muted loop playsinline preload="none"></video>
+      <div class="reel-overlay">
+        <div class="reel-play-icon" aria-hidden="true">&#9654;</div>
+      </div>
+      <div class="reel-mute-btn" title="Tap to unmute">&#128264;</div>
+    </div>
   </div>
 </section>
 
@@ -3214,6 +3345,58 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
     bk.barber = chip.dataset.barber;
   });
 });
+
+// ─── REELS ───
+(function(){
+  const cards = Array.from(document.querySelectorAll('.reel-card'));
+  if (!cards.length) return;
+
+  // Autoplay when card is ≥60% visible, pause when not
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const card = entry.target;
+      const vid  = card.querySelector('video');
+      if (!vid) return;
+      if (entry.intersectionRatio >= 0.6) {
+        vid.play().catch(() => {});
+        card.classList.add('playing');
+      } else {
+        vid.pause();
+        card.classList.remove('playing');
+      }
+    });
+  }, { threshold: [0, 0.6] });
+
+  cards.forEach(card => {
+    obs.observe(card);
+
+    // Tap card = play/pause toggle
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('reel-mute-btn')) return;
+      const vid = card.querySelector('video');
+      if (!vid) return;
+      if (vid.paused) {
+        vid.play().catch(() => {});
+        card.classList.add('playing');
+      } else {
+        vid.pause();
+        card.classList.remove('playing');
+      }
+    });
+
+    // Mute button
+    const muteBtn = card.querySelector('.reel-mute-btn');
+    if (muteBtn) {
+      muteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const vid = card.querySelector('video');
+        if (!vid) return;
+        vid.muted = !vid.muted;
+        muteBtn.textContent = vid.muted ? '🔇' : '🔊';
+      });
+    }
+  });
+})();
 
 // ─── THE WORK SLIDESHOW ───
 (function(){
