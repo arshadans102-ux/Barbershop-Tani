@@ -647,6 +647,168 @@ section { padding: 4rem 1.5rem; }
   text-transform: uppercase;
 }
 
+/* ─── THE WORK ─── */
+.work-stage {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+  background: #1a1715;
+}
+.work-slides { position: absolute; inset: 0; }
+.work-slide {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease);
+  transform: scale(1.04);
+  animation: none;
+}
+.work-slide.active {
+  opacity: 1;
+  animation: work-kb 8s ease-out forwards;
+}
+@keyframes work-kb {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1.0); }
+}
+.work-stage-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(12,10,10,0.55) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+.work-arrow {
+  position: absolute; top: 50%; z-index: 2;
+  transform: translateY(-50%);
+  background: rgba(18,16,16,0.7);
+  border: 1px solid rgba(201,168,76,0.25);
+  color: var(--gold);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s var(--ease);
+  backdrop-filter: blur(6px);
+}
+.work-arrow:hover { background: rgba(201,168,76,0.15); border-color: var(--gold); }
+.work-arrow-l { left: 12px; }
+.work-arrow-r { right: 12px; }
+.work-slide-dots {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 2;
+}
+.work-slide-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(201,168,76,0.35);
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+}
+.work-slide-dot.active { background: var(--gold); transform: scale(1.4); }
+
+/* Grid */
+.work-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 180px;
+  gap: 10px;
+}
+.work-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #1a1715;
+}
+.work-tile--tall { grid-row: span 2; }
+.work-tile--wide { grid-column: span 2; }
+.work-tile img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s var(--ease), filter 0.4s;
+  filter: brightness(0.88);
+}
+.work-tile:hover img {
+  transform: scale(1.07);
+  filter: brightness(1.05);
+}
+.work-tile-shine {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.work-tile:hover .work-tile-shine { opacity: 1; }
+.work-tile::after {
+  content: '';
+  position: absolute; inset: 0;
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 10px;
+  pointer-events: none;
+  transition: border-color 0.3s;
+}
+.work-tile:hover::after { border-color: rgba(201,168,76,0.3); }
+
+/* Lightbox */
+.work-lightbox {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(8,6,6,0.95);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  animation: lb-in 0.3s var(--ease);
+}
+.work-lightbox.open { display: flex; }
+@keyframes lb-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.work-lb-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+  animation: lb-img-in 0.35s var(--ease);
+}
+@keyframes lb-img-in {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.work-lb-close {
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--gold);
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.3s;
+}
+.work-lb-close:hover { background: rgba(201,168,76,0.25); }
+
+@media (max-width: 600px) {
+  .work-stage { aspect-ratio: 4/3; border-radius: 10px; }
+  .work-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 140px;
+  }
+  .work-tile--wide { grid-column: span 2; }
+  .work-tile--tall { grid-row: span 1; }
+}
+
 /* ─── PRICELIST ─── */
 .pricelist {
   max-width: 900px;
@@ -2406,6 +2568,7 @@ footer {
   <ul class="nav-links">
     <li><a href="#home">HOME</a></li>
     <li><a href="#services">SERVICES</a></li>
+    <li><a href="#work">WORK</a></li>
     <li><a href="#barbers">BARBERS</a></li>
     <li><a href="products.html">SHOP</a></li>
     <li><a href="#booking">BOOK NOW</a></li>
@@ -2420,6 +2583,7 @@ footer {
 <div class="mobile-menu" id="mobileMenu">
   <a href="#home" class="mobile-link">HOME</a>
   <a href="#services" class="mobile-link">SERVICES</a>
+  <a href="#work" class="mobile-link">WORK</a>
   <a href="#barbers" class="mobile-link">BARBERS</a>
   <a href="products.html" class="mobile-link">SHOP</a>
   <a href="#booking" class="mobile-link">BOOK NOW</a>
@@ -2566,27 +2730,56 @@ footer {
   </div>
 </section>
 
-<!-- Pricelist -->
-<section class="section-dark">
+<!-- The Work -->
+<section class="section-dark" id="work">
   <div class="section-header reveal">
-    <h2>Pricelist & <em>Special Offer</em></h2>
+    <h2>The <em>Work</em></h2>
     <div class="gold-line"></div>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-top:0.5rem;">Precision. Every time.</p>
   </div>
 
-  <div class="pricelist reveal">
-    <div class="pricelist-item"><span class="name">REGULAR CUT</span><span class="dots"></span><span class="price">$30</span></div>
-    <div class="pricelist-item"><span class="name">CHILDREN CUT</span><span class="dots"></span><span class="price">$20</span></div>
-    <div class="pricelist-item"><span class="name">SENIOR CUT</span><span class="dots"></span><span class="price">$20</span></div>
-    <div class="pricelist-item"><span class="name">SHAVING</span><span class="dots"></span><span class="price">$20</span></div>
-    <div class="pricelist-item"><span class="name">BEARD TRIM</span><span class="dots"></span><span class="price">$10</span></div>
-    <div class="pricelist-item"><span class="name">SKIN CARE</span><span class="dots"></span><span class="price">$20</span></div>
-    <div class="pricelist-item"><span class="name">HOT TOWEL SHAVE</span><span class="dots"></span><span class="price">$30</span></div>
-    <div class="pricelist-item"><span class="name">SHAVE & HAIRCUT</span><span class="dots"></span><span class="price">$55</span></div>
-    <div class="pricelist-item"><span class="name">FACE MASSAGE</span><span class="dots"></span><span class="price">$15</span></div>
-    <div class="pricelist-item"><span class="name">HEAD MASSAGE</span><span class="dots"></span><span class="price">$15</span></div>
-    <div class="pricelist-item"><span class="name">HOT TOWEL TREATMENT</span><span class="dots"></span><span class="price">$10</span></div>
+  <!-- Featured slideshow -->
+  <div class="work-stage reveal">
+    <div class="work-slides" id="workSlides">
+      <div class="work-slide active" style="background-image:url('work_1.jpg')"></div>
+      <div class="work-slide" style="background-image:url('work_2.jpg')"></div>
+      <div class="work-slide" style="background-image:url('work_3.jpg')"></div>
+    </div>
+    <div class="work-stage-overlay"></div>
+    <button class="work-arrow work-arrow-l" id="workPrev" aria-label="Prev">&#10094;</button>
+    <button class="work-arrow work-arrow-r" id="workNext" aria-label="Next">&#10095;</button>
+    <div class="work-slide-dots" id="workDots"></div>
   </div>
 
+  <!-- Masonry grid -->
+  <div class="work-grid reveal">
+    <div class="work-tile work-tile--tall" data-src="work_4.jpg">
+      <img src="work_4.jpg" alt="Haircut 4" loading="lazy">
+      <div class="work-tile-shine"></div>
+    </div>
+    <div class="work-tile" data-src="work_5.jpg">
+      <img src="work_5.jpg" alt="Haircut 5" loading="lazy">
+      <div class="work-tile-shine"></div>
+    </div>
+    <div class="work-tile" data-src="work_6.jpg">
+      <img src="work_6.jpg" alt="Haircut 6" loading="lazy">
+      <div class="work-tile-shine"></div>
+    </div>
+    <div class="work-tile work-tile--wide" data-src="work_7.jpg">
+      <img src="work_7.jpg" alt="Haircut 7" loading="lazy">
+      <div class="work-tile-shine"></div>
+    </div>
+    <div class="work-tile" data-src="work_8.jpg">
+      <img src="work_8.jpg" alt="Haircut 8" loading="lazy">
+      <div class="work-tile-shine"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="work-lightbox" id="workLightbox">
+    <button class="work-lb-close" id="workLbClose" aria-label="Close">&#10005;</button>
+    <img class="work-lb-img" id="workLbImg" src="" alt="Enlarged view">
+  </div>
 </section>
 
 <!-- Barbers -->
@@ -3021,6 +3214,79 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
     bk.barber = chip.dataset.barber;
   });
 });
+
+// ─── THE WORK SLIDESHOW ───
+(function(){
+  const slides = Array.from(document.querySelectorAll('.work-slide'));
+  const dotsWrap = document.getElementById('workDots');
+  if (!slides.length || !dotsWrap) return;
+
+  let cur = 0, timer;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'work-slide-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => { goTo(i); resetTimer(); });
+    dotsWrap.appendChild(d);
+  });
+
+  function goTo(idx) {
+    slides[cur].classList.remove('active');
+    dotsWrap.children[cur].classList.remove('active');
+    cur = (idx + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+    dotsWrap.children[cur].classList.add('active');
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timer = setInterval(() => goTo(cur + 1), 5000);
+  }
+
+  document.getElementById('workNext').addEventListener('click', () => { goTo(cur + 1); resetTimer(); });
+  document.getElementById('workPrev').addEventListener('click', () => { goTo(cur - 1); resetTimer(); });
+
+  // Swipe support
+  let sx = null;
+  const stage = document.querySelector('.work-stage');
+  stage.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, {passive:true});
+  stage.addEventListener('touchend',   e => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 40) { dx < 0 ? goTo(cur+1) : goTo(cur-1); resetTimer(); }
+    sx = null;
+  });
+
+  resetTimer();
+})();
+
+// ─── THE WORK GRID LIGHTBOX ───
+(function(){
+  const lb    = document.getElementById('workLightbox');
+  const lbImg = document.getElementById('workLbImg');
+  const lbClose = document.getElementById('workLbClose');
+  if (!lb) return;
+
+  document.querySelectorAll('.work-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const src = tile.dataset.src || tile.querySelector('img')?.src;
+      if (!src) return;
+      lbImg.src = src;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeLb() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+  }
+
+  lbClose.addEventListener('click', closeLb);
+  lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+})();
 
 // ─── GAME 3D BARBER CAROUSEL ───
 (function(){
