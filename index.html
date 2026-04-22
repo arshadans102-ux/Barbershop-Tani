@@ -449,13 +449,13 @@ nav {
   margin-bottom: 1rem;
 }
 
-/* ─── LIVE FLOOR PLAN ─── */
+/* ─── LIVE FLOOR PLAN — NEON GLOW ─── */
 .floor-plan {
   margin: 0.5rem 0 1.5rem;
   text-align: center;
   visibility: hidden;
-  transition: opacity 0.5s ease;
   opacity: 0;
+  transition: opacity 0.6s ease;
 }
 .floor-plan.loaded { visibility: visible; opacity: 1; }
 
@@ -475,87 +475,132 @@ nav {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: #34c759;
-  box-shadow: 0 0 6px #34c759;
-  animation: pulse-green 2s infinite;
+  box-shadow: 0 0 8px #34c759;
+  animation: neon-pulse-green 2s infinite;
 }
 
 .chairs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.55rem;
+  gap: 0.6rem;
   max-width: 320px;
   margin: 0 auto;
 }
 
 .chair-card {
-  background: rgba(20,17,15,0.8);
-  border: 1px solid rgba(201,168,76,0.08);
-  border-radius: 12px;
-  padding: 0.7rem 0.4rem 0.55rem;
+  background: #111;
+  border-radius: 14px;
+  padding: 0.75rem 0.4rem 0.6rem;
   text-align: center;
-  transition: border-color 0.5s ease, background 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
-  color: rgba(120,120,128,0.6);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.5s ease, background 0.5s ease;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
 }
+/* Top glow line */
+.chair-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+/* Inner ambient glow */
+.chair-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
 .chair-card.free {
-  color: #34c759;
-  border-color: rgba(52,199,89,0.3);
-  background: rgba(52,199,89,0.07);
-  box-shadow: 0 0 14px rgba(52,199,89,0.07);
+  box-shadow: 0 0 0 1px rgba(52,199,89,0.55), 0 0 22px rgba(52,199,89,0.12) inset;
 }
+.chair-card.free::before {
+  background: linear-gradient(90deg, transparent, #34c759, transparent);
+  opacity: 1;
+}
+.chair-card.free::after {
+  background: radial-gradient(ellipse at 50% 0%, rgba(52,199,89,0.1) 0%, transparent 70%);
+  opacity: 1;
+}
+
 .chair-card.busy {
-  color: #ff453a;
-  border-color: rgba(255,69,58,0.3);
-  background: rgba(255,69,58,0.07);
-  box-shadow: 0 0 14px rgba(255,69,58,0.07);
+  box-shadow: 0 0 0 1px rgba(255,69,58,0.55), 0 0 22px rgba(255,69,58,0.12) inset;
 }
+.chair-card.busy::before {
+  background: linear-gradient(90deg, transparent, #ff453a, transparent);
+  opacity: 1;
+}
+.chair-card.busy::after {
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,69,58,0.1) 0%, transparent 70%);
+  opacity: 1;
+}
+
 .chair-card.reserved {
-  color: #c9a84c;
-  border-color: rgba(201,168,76,0.3);
-  background: rgba(201,168,76,0.07);
-  box-shadow: 0 0 14px rgba(201,168,76,0.05);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.55), 0 0 22px rgba(201,168,76,0.1) inset;
+}
+.chair-card.reserved::before {
+  background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+  opacity: 1;
+}
+.chair-card.reserved::after {
+  background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%);
+  opacity: 1;
 }
 
 /* Chair SVG uses currentColor */
-.chair-svg { display: block; margin: 0 auto 0.35rem; overflow: visible; }
+.chair-svg { display: block; margin: 0 auto 0.35rem; overflow: visible; position: relative; z-index: 1; }
 .chair-svg .client { display: none; }
 .chair-card.busy .chair-svg .client { display: block; }
 
 .chair-num {
-  font-size: 0.42rem;
-  letter-spacing: 1px;
-  color: rgba(245,237,224,0.25);
+  font-size: 0.4rem;
+  letter-spacing: 1.5px;
+  color: rgba(245,237,224,0.22);
   text-transform: uppercase;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.18rem;
+  position: relative; z-index: 1;
 }
 .chair-lbl {
   font-size: 0.46rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  color: currentColor;
+  position: relative; z-index: 1;
 }
 .chair-lbl .cdot {
-  width: 5px; height: 5px;
+  width: 4px; height: 4px;
   border-radius: 50%;
-  background: currentColor;
   display: inline-block;
+  flex-shrink: 0;
 }
-.chair-card.free .cdot { box-shadow: 0 0 5px #34c759; animation: pulse-green 2s infinite; }
+.chair-card.free  .chair-lbl { color: #34c759; text-shadow: 0 0 8px rgba(52,199,89,0.9); }
+.chair-card.busy  .chair-lbl { color: #ff453a; text-shadow: 0 0 8px rgba(255,69,58,0.9); }
+.chair-card.reserved .chair-lbl { color: #c9a84c; text-shadow: 0 0 8px rgba(201,168,76,0.7); }
+.chair-card.free  .cdot { background: #34c759; box-shadow: 0 0 5px #34c759; animation: neon-pulse-green 2s infinite; }
+.chair-card.busy  .cdot { background: #ff453a; box-shadow: 0 0 4px #ff453a; }
+.chair-card.reserved .cdot { background: #c9a84c; box-shadow: 0 0 4px #c9a84c; }
 
 .floor-summary {
-  font-size: 0.58rem;
-  color: rgba(245,237,224,0.2);
-  letter-spacing: 1px;
-  margin-top: 0.7rem;
+  font-size: 0.56rem;
+  color: rgba(245,237,224,0.18);
+  letter-spacing: 1.5px;
+  margin-top: 0.75rem;
+  text-transform: uppercase;
 }
 
-@keyframes pulse-green {
-  0%   { box-shadow: 0 0 0 0 rgba(52,199,89,0.6); }
-  70%  { box-shadow: 0 0 0 5px rgba(52,199,89,0); }
-  100% { box-shadow: 0 0 0 0 rgba(52,199,89,0); }
+@keyframes neon-pulse-green {
+  0%,100% { box-shadow: 0 0 4px #34c759; }
+  50%      { box-shadow: 0 0 10px #34c759, 0 0 18px rgba(52,199,89,0.4); }
 }
 
 .hero-info {
