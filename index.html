@@ -446,7 +446,75 @@ nav {
   letter-spacing: 6px;
   text-transform: uppercase;
   color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+/* ─── LIVE STATUS BADGE ─── */
+.shop-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
   margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+  transition: all 0.4s ease;
+}
+.shop-status .status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.shop-status.open {
+  background: rgba(52, 199, 89, 0.1);
+  border-color: rgba(52, 199, 89, 0.3);
+  color: #34c759;
+}
+.shop-status.open .status-dot {
+  background: #34c759;
+  box-shadow: 0 0 0 0 rgba(52,199,89,0.5);
+  animation: pulse-green 2s infinite;
+}
+.shop-status.wait {
+  background: rgba(255, 179, 0, 0.1);
+  border-color: rgba(255, 179, 0, 0.3);
+  color: #ffb300;
+}
+.shop-status.wait .status-dot {
+  background: #ffb300;
+  box-shadow: 0 0 0 0 rgba(255,179,0,0.5);
+  animation: pulse-yellow 2s infinite;
+}
+.shop-status.busy {
+  background: rgba(255, 69, 58, 0.1);
+  border-color: rgba(255, 69, 58, 0.3);
+  color: #ff453a;
+}
+.shop-status.busy .status-dot {
+  background: #ff453a;
+}
+.shop-status.closed {
+  background: rgba(120,120,128,0.1);
+  border-color: rgba(120,120,128,0.25);
+  color: #8e8e93;
+}
+.shop-status.closed .status-dot {
+  background: #8e8e93;
+}
+@keyframes pulse-green {
+  0%   { box-shadow: 0 0 0 0 rgba(52,199,89,0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(52,199,89,0); }
+  100% { box-shadow: 0 0 0 0 rgba(52,199,89,0); }
+}
+@keyframes pulse-yellow {
+  0%   { box-shadow: 0 0 0 0 rgba(255,179,0,0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(255,179,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,179,0,0); }
 }
 
 .hero-info {
@@ -2662,6 +2730,11 @@ footer {
     <h1>Scissors<img src="icon.png" class="logo-x-icon" alt="scissors and comb" aria-hidden="true">Comb</h1>
     <p class="hero-tagline">BY TAHA</p>
 
+    <div id="shopStatusBadge" class="shop-status closed" style="visibility:hidden">
+      <span class="status-dot"></span>
+      <span class="status-text">Closed</span>
+    </div>
+
     <div class="hero-info">
       <div class="hero-info-item">
         <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -3482,5 +3555,36 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
 </script>
 
 
+<!-- ─── FIREBASE LIVE STATUS ─── -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAigVzXYSnxgLkS_qNajT7CU4RMOp1Ifto",
+    authDomain: "barbershop-tani.firebaseapp.com",
+    databaseURL: "https://barbershop-tani-default-rtdb.firebaseio.com",
+    projectId: "barbershop-tani",
+    storageBucket: "barbershop-tani.firebasestorage.app",
+    messagingSenderId: "28107586921",
+    appId: "1:28107586921:web:b2c40dc3466efd3c2fd1f8"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const statusMap = {
+    open:   { label: 'Chair Free',  cls: 'open'   },
+    wait:   { label: 'Short Wait',  cls: 'wait'   },
+    busy:   { label: 'Busy',        cls: 'busy'   },
+    closed: { label: 'Closed',      cls: 'closed' }
+  };
+
+  const badge = document.getElementById('shopStatusBadge');
+  firebase.database().ref('status').on('value', snap => {
+    const val = snap.val() || 'closed';
+    const s = statusMap[val] || statusMap.closed;
+    badge.className = 'shop-status ' + s.cls;
+    badge.querySelector('.status-text').textContent = s.label;
+    badge.style.visibility = 'visible';
+  });
+</script>
 </body>
 </html>

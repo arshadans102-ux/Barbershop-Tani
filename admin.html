@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Shop Status — Taha</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0e0c0b;
+    color: #f5ede0;
+    font-family: -apple-system, 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    gap: 2rem;
+  }
+
+  /* ─── PIN SCREEN ─── */
+  #pinScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 320px;
+  }
+  #pinScreen h2 {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: #c9a84c;
+    text-transform: uppercase;
+  }
+  #pinDisplay {
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+    color: #f5ede0;
+    min-height: 2.5rem;
+  }
+  .pin-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .pin-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    color: #f5ede0;
+    font-size: 1.5rem;
+    font-weight: 400;
+    padding: 1.1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pin-btn:active { background: rgba(201,168,76,0.2); }
+  .pin-error { color: #ff453a; font-size: 0.85rem; min-height: 1.2rem; }
+
+  /* ─── ADMIN SCREEN ─── */
+  #adminScreen { display: none; width: 100%; max-width: 360px; }
+  .admin-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .admin-header h1 {
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a84c;
+  }
+  .admin-header p {
+    font-size: 0.8rem;
+    color: rgba(245,237,224,0.4);
+    margin-top: 0.3rem;
+  }
+
+  .current-status {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 0.8rem;
+    color: rgba(245,237,224,0.5);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .current-status span {
+    font-weight: 600;
+    letter-spacing: 1.5px;
+  }
+  .current-status span.open  { color: #34c759; }
+  .current-status span.wait  { color: #ffb300; }
+  .current-status span.busy  { color: #ff453a; }
+  .current-status span.closed{ color: #8e8e93; }
+
+  .status-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .status-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-align: left;
+    transition: transform 0.15s, opacity 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .status-btn:active { transform: scale(0.97); opacity: 0.85; }
+  .status-btn.active { box-shadow: 0 0 0 2px currentColor; }
+  .btn-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .btn-sub {
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.65;
+    letter-spacing: 0;
+    margin-top: 0.1rem;
+  }
+
+  .btn-open  { background: rgba(52,199,89,0.1);  border-color: rgba(52,199,89,0.25);  color: #34c759; }
+  .btn-open  .btn-dot { background: #34c759; }
+  .btn-wait  { background: rgba(255,179,0,0.1);  border-color: rgba(255,179,0,0.25);  color: #ffb300; }
+  .btn-wait  .btn-dot { background: #ffb300; }
+  .btn-busy  { background: rgba(255,69,58,0.1);  border-color: rgba(255,69,58,0.25);  color: #ff453a; }
+  .btn-busy  .btn-dot { background: #ff453a; }
+  .btn-closed{ background: rgba(120,120,128,0.1);border-color: rgba(120,120,128,0.2); color: #8e8e93; }
+  .btn-closed .btn-dot { background: #8e8e93; }
+
+  .saving {
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(245,237,224,0.35);
+    margin-top: 1.25rem;
+    min-height: 1.2rem;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <h2>✂ Shop Status</h2>
+  <div id="pinDisplay">••••</div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn" onclick="pinClear()" style="color:rgba(245,237,224,0.4)">⌫</button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn" onclick="pinSubmit()" style="background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.3);color:#c9a84c">→</button>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="adminScreen">
+  <div class="admin-header">
+    <h1>✂ Shop Status</h1>
+    <p>Tap to update — changes go live instantly</p>
+  </div>
+
+  <div class="current-status">
+    Current: <span id="currentLabel" class="closed">—</span>
+  </div>
+
+  <div class="status-btns">
+    <button class="status-btn btn-open"   onclick="setStatus('open')">
+      <span class="btn-dot"></span>
+      <div><div>Chair Free</div><div class="btn-sub">Walk-ins welcome</div></div>
+    </button>
+    <button class="status-btn btn-wait"   onclick="setStatus('wait')">
+      <span class="btn-dot"></span>
+      <div><div>Short Wait</div><div class="btn-sub">15–20 min wait</div></div>
+    </button>
+    <button class="status-btn btn-busy"   onclick="setStatus('busy')">
+      <span class="btn-dot"></span>
+      <div><div>Busy</div><div class="btn-sub">Booked up, try later</div></div>
+    </button>
+    <button class="status-btn btn-closed" onclick="setStatus('closed')">
+      <span class="btn-dot"></span>
+      <div><div>Closed</div><div class="btn-sub">Shop is closed today</div></div>
+    </button>
+  </div>
+
+  <div class="saving" id="savingMsg"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+  // ─── PIN ───
+  const PIN = '1234'; // change this to whatever you want
+  let entered = '';
+
+  function pinPress(d) {
+    if (entered.length >= 4) return;
+    entered += d;
+    document.getElementById('pinDisplay').textContent = '•'.repeat(entered.length).padEnd(4, '·');
+    if (entered.length === 4) setTimeout(pinSubmit, 200);
+  }
+  function pinClear() {
+    entered = entered.slice(0, -1);
+    document.getElementById('pinDisplay').textContent = '•'.repeat(entered.length).padEnd(4, '·');
+    document.getElementById('pinError').textContent = '';
+  }
+  function pinSubmit() {
+    if (entered === PIN) {
+      document.getElementById('pinScreen').style.display = 'none';
+      document.getElementById('adminScreen').style.display = 'block';
+      initFirebase();
+    } else {
+      document.getElementById('pinError').textContent = 'Wrong PIN, try again';
+      entered = '';
+      document.getElementById('pinDisplay').textContent = '····';
+    }
+  }
+
+  // ─── FIREBASE ───
+  const firebaseConfig = {
+    apiKey: "AIzaSyAigVzXYSnxgLkS_qNajT7CU4RMOp1Ifto",
+    authDomain: "barbershop-tani.firebaseapp.com",
+    databaseURL: "https://barbershop-tani-default-rtdb.firebaseio.com",
+    projectId: "barbershop-tani",
+    storageBucket: "barbershop-tani.firebasestorage.app",
+    messagingSenderId: "28107586921",
+    appId: "1:28107586921:web:b2c40dc3466efd3c2fd1f8"
+  };
+
+  let db;
+  function initFirebase() {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    db.ref('status').on('value', snap => {
+      const val = snap.val() || 'closed';
+      const labels = { open:'Chair Free', wait:'Short Wait', busy:'Busy', closed:'Closed' };
+      const el = document.getElementById('currentLabel');
+      el.textContent = labels[val] || 'Closed';
+      el.className = val;
+      document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+      const active = document.querySelector('.btn-' + val);
+      if (active) active.classList.add('active');
+    });
+  }
+
+  function setStatus(val) {
+    if (!db) return;
+    const msg = document.getElementById('savingMsg');
+    msg.textContent = 'Saving…';
+    db.ref('status').set(val).then(() => {
+      msg.textContent = 'Saved ✓';
+      setTimeout(() => msg.textContent = '', 2000);
+    });
+  }
+</script>
+</body>
+</html>
