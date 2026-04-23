@@ -3640,9 +3640,9 @@ function bkSubmit() {
 function sendVia(method) {
   const encoded = encodeURIComponent(_bkMsg);
   if (method === 'whatsapp') {
-    window.open('https://wa.me/15195625585?text=' + encoded, '_blank');
+    window.open('https://wa.me/?text=' + encoded, '_blank');
   } else {
-    window.open('sms:+15195625585?body=' + encoded, '_blank');
+    window.open('sms:?body=' + encoded, '_blank');
   }
   closeSendModal();
 }
