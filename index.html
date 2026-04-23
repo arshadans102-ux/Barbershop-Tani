@@ -475,15 +475,15 @@ nav {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  color: #c9a84c;
+  color: #34c759;
   letter-spacing: 2px;
 }
 .floor-live-dot {
-  width: 6px; height: 6px;
+  width: 7px; height: 7px;
   border-radius: 50%;
-  background: #c9a84c;
-  box-shadow: 0 0 6px #c9a84c;
-  animation: live-pulse 2s infinite;
+  background: #34c759;
+  box-shadow: 0 0 8px #34c759;
+  animation: live-pulse 1.2s infinite;
 }
 
 .chairs-grid {
@@ -629,8 +629,8 @@ nav {
 }
 
 @keyframes live-pulse {
-  0%,100% { opacity: 1; box-shadow: 0 0 5px #c9a84c; }
-  50%      { opacity: 0.5; box-shadow: 0 0 2px #c9a84c; }
+  0%,100% { opacity: 1; box-shadow: 0 0 8px #34c759, 0 0 16px rgba(52,199,89,0.4); }
+  50%      { opacity: 0.3; box-shadow: 0 0 3px #34c759; }
 }
 
 .hero-info {
