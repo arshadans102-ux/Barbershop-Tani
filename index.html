@@ -2793,6 +2793,108 @@ footer {
   .mini-cal-cell:active:not(.disabled):not(.empty) { background: rgba(201,168,76,0.15); }
 }
 
+/* ── Send Booking Modal ── */
+.send-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+}
+.send-modal-overlay.open { display: flex; }
+.send-modal {
+  background: #1a1715;
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 20px 20px 16px 16px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.send-modal h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--cream);
+  margin-bottom: 0.3rem;
+}
+.send-modal p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+.send-modal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+.send-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  text-align: left;
+}
+.send-btn:active { transform: scale(0.97); }
+.send-btn-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+.send-btn-info { display: flex; flex-direction: column; gap: 2px; }
+.send-btn-sub { font-size: 0.68rem; font-weight: 400; opacity: 0.6; }
+
+.send-btn.whatsapp {
+  background: rgba(37,211,102,0.08);
+  border-color: rgba(37,211,102,0.3);
+  color: #25d366;
+}
+.send-btn.whatsapp:hover { box-shadow: 0 4px 16px rgba(37,211,102,0.15); }
+.send-btn.whatsapp .send-btn-icon { background: rgba(37,211,102,0.15); }
+
+.send-btn.sms {
+  background: rgba(201,168,76,0.07);
+  border-color: rgba(201,168,76,0.25);
+  color: var(--cream);
+}
+.send-btn.sms:hover { box-shadow: 0 4px 16px rgba(201,168,76,0.12); }
+.send-btn.sms .send-btn-icon { background: rgba(201,168,76,0.12); }
+
+.send-modal-cancel {
+  width: 100%;
+  padding: 0.7rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ── Haptic-like tap feedback ── */
 .tappable {
   -webkit-tap-highlight-color: transparent;
@@ -3416,6 +3518,7 @@ renderCal();
 renderTimes();
 
 // ── Submit ──
+let _bkMsg = '';
 function bkSubmit() {
   if (!bk.svcs.length) return alert("Please select at least one service.");
   if (!bk.date)        return alert("Please select a date.");
@@ -3424,32 +3527,42 @@ function bkSubmit() {
   const phone = document.getElementById("bkPhone").value.trim();
   if (!name || !phone) return alert("Please provide your name and phone number.");
 
-  const svcList  = bk.svcs.map(s => s.svc).join(', ');
-  const dateStr  = bk.date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  const svcList   = bk.svcs.map(s => s.svc).join(', ');
+  const dateStr   = bk.date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
   const barberStr = bk.barber && bk.barber !== 'No Preference' ? bk.barber : 'Any barber';
 
-  // 1 — Save to Firebase
-  const booking = {
-    name, phone, services: svcList,
-    barber: barberStr, date: dateStr, time: bk.time,
-    createdAt: Date.now()
-  };
+  // Save to Firebase
+  const booking = { name, phone, services: svcList, barber: barberStr, date: dateStr, time: bk.time, createdAt: Date.now() };
   if (typeof firebase !== 'undefined' && firebase.apps.length) {
     firebase.database().ref('bookings').push(booking);
   }
 
-  // 2 — Open WhatsApp with pre-filled message
-  const msg = `Hi! I'd like to book an appointment at Scissors X Comb.\n\n` +
-              `👤 Name: ${name}\n` +
-              `📞 Phone: ${phone}\n` +
-              `✂️ Services: ${svcList}\n` +
-              `💈 Barber: ${barberStr}\n` +
-              `📅 Date: ${dateStr}\n` +
-              `⏰ Time: ${bk.time}\n\n` +
-              `Please confirm my booking. Thank you!`;
+  // Store message and show send modal
+  _bkMsg = `Hi! I'd like to book an appointment at Scissors X Comb.\n\n` +
+           `👤 Name: ${name}\n` +
+           `📞 Phone: ${phone}\n` +
+           `✂️ Services: ${svcList}\n` +
+           `💈 Barber: ${barberStr}\n` +
+           `📅 Date: ${dateStr}\n` +
+           `⏰ Time: ${bk.time}\n\n` +
+           `Please confirm my booking. Thank you!`;
 
-  const waURL = 'https://wa.me/15195625585?text=' + encodeURIComponent(msg);
-  window.open(waURL, '_blank');
+  document.getElementById('sendModal').classList.add('open');
+}
+
+function sendVia(method) {
+  const encoded = encodeURIComponent(_bkMsg);
+  if (method === 'whatsapp') {
+    window.open('https://wa.me/15195625585?text=' + encoded, '_blank');
+  } else {
+    // sms: works on iOS and Android
+    window.open('sms:+15195625585?body=' + encoded, '_blank');
+  }
+  closeSendModal();
+}
+
+function closeSendModal() {
+  document.getElementById('sendModal').classList.remove('open');
 }
 
 document.getElementById('modal').addEventListener('click', function(e) {
@@ -3770,6 +3883,31 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
 })();
 </script>
 
+
+<!-- ─── SEND BOOKING MODAL ─── -->
+<div class="send-modal-overlay" id="sendModal">
+  <div class="send-modal">
+    <h3>Send Your Booking</h3>
+    <p>Choose how you'd like to send your appointment request to Scissors X Comb.</p>
+    <div class="send-modal-btns">
+      <button class="send-btn whatsapp" onclick="sendVia('whatsapp')">
+        <div class="send-btn-icon">💬</div>
+        <div class="send-btn-info">
+          <span>Send via WhatsApp</span>
+          <span class="send-btn-sub">Opens WhatsApp with your booking details</span>
+        </div>
+      </button>
+      <button class="send-btn sms" onclick="sendVia('sms')">
+        <div class="send-btn-icon">✉️</div>
+        <div class="send-btn-info">
+          <span>Send via Text Message</span>
+          <span class="send-btn-sub">Opens your default SMS app</span>
+        </div>
+      </button>
+    </div>
+    <button class="send-modal-cancel" onclick="closeSendModal()">Cancel</button>
+  </div>
+</div>
 
 <!-- ─── FIREBASE LIVE FLOOR ─── -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
