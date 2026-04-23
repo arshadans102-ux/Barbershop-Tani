@@ -1527,6 +1527,14 @@ section { padding: 4rem 1.5rem; }
   -webkit-tap-highlight-color: transparent;
 }
 .bk-time:hover { border-color: rgba(201,168,76,0.3); color: var(--cream); }
+.bk-time.taken {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+  text-decoration: line-through;
+  border-color: rgba(255,255,255,0.04);
+  color: var(--text-dim);
+}
 .bk-time.active {
   background: var(--gold);
   border-color: var(--gold);
@@ -3444,6 +3452,8 @@ document.querySelectorAll('.bk-barber-btn').forEach(btn => {
     document.querySelectorAll('.bk-barber-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     bk.barber = btn.dataset.barber;
+    bk.time = null;
+    renderTimes();
   });
 });
 
@@ -3487,21 +3497,53 @@ function renderCal() {
   grid.querySelectorAll('.mini-cal-cell:not(.disabled):not(.empty)').forEach(cell => {
     cell.addEventListener('click', () => {
       bk.date = new Date(parseInt(cell.dataset.ts));
+      bk.time = null;
       renderCal();
+      renderTimes();
     });
   });
 }
 
+// ── Fetch taken slots for selected date+barber, then render ──
 function renderTimes() {
   const grid = document.getElementById('bkTimeGrid');
   if (!grid) return;
-  grid.innerHTML = TIMES.map(t =>
-    `<div class="bk-time${bk.time === t ? ' active' : ''}" data-t="${t}">${t}</div>`
-  ).join('');
-  grid.querySelectorAll('.bk-time').forEach(slot => {
+
+  if (!bk.date || typeof firebase === 'undefined' || !firebase.apps.length) {
+    _drawTimes(grid, []);
+    return;
+  }
+
+  const dateTs = bk.date.getTime();
+  firebase.database().ref('bookings')
+    .orderByChild('dateTs').equalTo(dateTs)
+    .once('value', snap => {
+      const taken = [];
+      snap.forEach(child => {
+        const b = child.val();
+        // Block slot if same barber OR either side is "Any barber"
+        const barberMatch = !bk.barber || bk.barber === 'No Preference'
+          || !b.barber || b.barber === 'Any barber'
+          || b.barber === bk.barber;
+        if (barberMatch && b.status === 'confirmed') taken.push(b.time);
+      });
+      _drawTimes(grid, taken);
+    });
+}
+
+function _drawTimes(grid, taken) {
+  grid.innerHTML = TIMES.map(t => {
+    const isTaken  = taken.includes(t);
+    const isActive = bk.time === t;
+    let cls = 'bk-time';
+    if (isTaken)  cls += ' taken';
+    if (isActive && !isTaken) cls += ' active';
+    return `<div class="${cls}" data-t="${t}">${t}${isTaken ? '<span style="font-size:0.6em;display:block;letter-spacing:0">Booked</span>' : ''}</div>`;
+  }).join('');
+  grid.querySelectorAll('.bk-time:not(.taken)').forEach(slot => {
     slot.addEventListener('click', () => {
       bk.time = slot.dataset.t;
-      renderTimes();
+      _drawTimes(grid, taken);
     });
   });
 }
@@ -3530,24 +3572,69 @@ function bkSubmit() {
   const svcList   = bk.svcs.map(s => s.svc).join(', ');
   const dateStr   = bk.date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
   const barberStr = bk.barber && bk.barber !== 'No Preference' ? bk.barber : 'Any barber';
+  const dateTs    = bk.date.getTime();
+  const timeSlot  = bk.time;
 
-  // Save to Firebase
-  const booking = { name, phone, services: svcList, barber: barberStr, date: dateStr, time: bk.time, createdAt: Date.now() };
-  if (typeof firebase !== 'undefined' && firebase.apps.length) {
-    firebase.database().ref('bookings').push(booking);
-  }
+  // Disable submit button to prevent double-tap
+  const submitBtn = document.querySelector('.bk-btn-next[onclick="bkSubmit()"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.querySelector('span').textContent = 'Checking...'; }
 
-  // Store message and show send modal
-  _bkMsg = `Hi! I'd like to book an appointment at Scissors X Comb.\n\n` +
-           `👤 Name: ${name}\n` +
-           `📞 Phone: ${phone}\n` +
-           `✂️ Services: ${svcList}\n` +
-           `💈 Barber: ${barberStr}\n` +
-           `📅 Date: ${dateStr}\n` +
-           `⏰ Time: ${bk.time}\n\n` +
-           `Please confirm my booking. Thank you!`;
+  // ── Check slot is still free ──
+  firebase.database().ref('bookings')
+    .orderByChild('dateTs').equalTo(dateTs)
+    .once('value', snap => {
+      let conflict = false;
+      snap.forEach(child => {
+        const b = child.val();
+        if (b.status !== 'confirmed') return;
+        if (b.time !== timeSlot) return;
+        const barberMatch = !barberStr || barberStr === 'Any barber'
+          || !b.barber || b.barber === 'Any barber'
+          || b.barber === barberStr;
+        if (barberMatch) conflict = true;
+      });
 
-  document.getElementById('sendModal').classList.add('open');
+      if (conflict) {
+        // Slot was just taken — re-enable button and refresh times
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.querySelector('span').textContent = 'CONFIRM BOOKING'; }
+        bk.time = null;
+        renderTimes();
+        alert('Sorry — that slot was just booked. Please pick a different time.');
+        return;
+      }
+
+      // ── Slot is free — save and confirm ──
+      const booking = {
+        name, phone, services: svcList,
+        barber: barberStr, date: dateStr,
+        dateTs, time: timeSlot,
+        status: 'confirmed', createdAt: Date.now()
+      };
+      firebase.database().ref('bookings').push(booking).then(() => {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.querySelector('span').textContent = 'CONFIRM BOOKING'; }
+
+        // Build notification message for Taha
+        _bkMsg = `🔔 New Booking at Scissors X Comb!\n\n` +
+                 `👤 ${name}\n📞 ${phone}\n` +
+                 `✂️ ${svcList}\n💈 ${barberStr}\n` +
+                 `📅 ${dateStr} at ${timeSlot}\n\n` +
+                 `Auto-confirmed via website.`;
+
+        // Show confirmation screen
+        document.getElementById('confirmName').textContent = name;
+        document.getElementById('confirmDetails').textContent =
+          `${svcList} · ${barberStr} · ${dateStr} at ${timeSlot}`;
+        document.getElementById('modal').classList.add('open');
+
+        // After 1.5s, show the "notify Taha" send modal
+        setTimeout(() => document.getElementById('sendModal').classList.add('open'), 1500);
+
+        // Reset booking state
+        bk = { svcs: [], barber: 'No Preference', date: null, time: null };
+        document.querySelectorAll('.bk-svc-row, .svc-card').forEach(r => r.classList.remove('active'));
+        document.querySelectorAll('.bk-barber-btn, .bk-barber-chip').forEach(b => b.classList.remove('active'));
+      });
+    });
 }
 
 function sendVia(method) {
@@ -3555,7 +3642,6 @@ function sendVia(method) {
   if (method === 'whatsapp') {
     window.open('https://wa.me/15195625585?text=' + encoded, '_blank');
   } else {
-    // sms: works on iOS and Android
     window.open('sms:+15195625585?body=' + encoded, '_blank');
   }
   closeSendModal();
@@ -3887,21 +3973,21 @@ document.querySelectorAll('.bk-barber-chip').forEach(chip => {
 <!-- ─── SEND BOOKING MODAL ─── -->
 <div class="send-modal-overlay" id="sendModal">
   <div class="send-modal">
-    <h3>Send Your Booking</h3>
-    <p>Choose how you'd like to send your appointment request to Scissors X Comb.</p>
+    <h3>Notify the Shop</h3>
+    <p>Your booking is confirmed! Send a quick notification to the shop so they're ready for you.</p>
     <div class="send-modal-btns">
       <button class="send-btn whatsapp" onclick="sendVia('whatsapp')">
         <div class="send-btn-icon">💬</div>
         <div class="send-btn-info">
           <span>Send via WhatsApp</span>
-          <span class="send-btn-sub">Opens WhatsApp with your booking details</span>
+          <span class="send-btn-sub">Notify the barber via WhatsApp</span>
         </div>
       </button>
       <button class="send-btn sms" onclick="sendVia('sms')">
         <div class="send-btn-icon">✉️</div>
         <div class="send-btn-info">
           <span>Send via Text Message</span>
-          <span class="send-btn-sub">Opens your default SMS app</span>
+          <span class="send-btn-sub">Notify the barber via text message</span>
         </div>
       </button>
     </div>
