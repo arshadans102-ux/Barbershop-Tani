@@ -3418,14 +3418,38 @@ renderTimes();
 // ── Submit ──
 function bkSubmit() {
   if (!bk.svcs.length) return alert("Please select at least one service.");
-  if (!bk.date) return alert("Please select a date.");
-  if (!bk.time) return alert("Please select a time.");
-  const name = document.getElementById("bkName").value.trim();
+  if (!bk.date)        return alert("Please select a date.");
+  if (!bk.time)        return alert("Please select a time.");
+  const name  = document.getElementById("bkName").value.trim();
   const phone = document.getElementById("bkPhone").value.trim();
   if (!name || !phone) return alert("Please provide your name and phone number.");
-  const svcList = bk.svcs.map(s => s.svc + ' (' + s.price + ')').join(', ');
-  const total = '$' + bkTotalPrice();
-  alert("Appointment Booked!\n\nServices: " + svcList + "\nTotal: " + total + "\nBarber: " + bk.barber + "\nDate: " + bk.date.toLocaleDateString() + "\nTime: " + bk.time);
+
+  const svcList  = bk.svcs.map(s => s.svc).join(', ');
+  const dateStr  = bk.date.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  const barberStr = bk.barber && bk.barber !== 'No Preference' ? bk.barber : 'Any barber';
+
+  // 1 — Save to Firebase
+  const booking = {
+    name, phone, services: svcList,
+    barber: barberStr, date: dateStr, time: bk.time,
+    createdAt: Date.now()
+  };
+  if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    firebase.database().ref('bookings').push(booking);
+  }
+
+  // 2 — Open WhatsApp with pre-filled message
+  const msg = `Hi! I'd like to book an appointment at Scissors X Comb.\n\n` +
+              `👤 Name: ${name}\n` +
+              `📞 Phone: ${phone}\n` +
+              `✂️ Services: ${svcList}\n` +
+              `💈 Barber: ${barberStr}\n` +
+              `📅 Date: ${dateStr}\n` +
+              `⏰ Time: ${bk.time}\n\n` +
+              `Please confirm my booking. Thank you!`;
+
+  const waURL = 'https://wa.me/15195625585?text=' + encodeURIComponent(msg);
+  window.open(waURL, '_blank');
 }
 
 document.getElementById('modal').addEventListener('click', function(e) {
